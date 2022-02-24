@@ -1,0 +1,12 @@
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\bin\Debug\net5.0\DistributionLib.deps.json
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\bin\Debug\net5.0\DistributionLib.dll
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\bin\Debug\net5.0\ref\DistributionLib.dll
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\bin\Debug\net5.0\DistributionLib.pdb
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.csproj.AssemblyReference.cache
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.GeneratedMSBuildEditorConfig.editorconfig
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.AssemblyInfoInputs.cache
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.AssemblyInfo.cs
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.csproj.CoreCompileInputs.cache
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.dll
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\ref\DistributionLib.dll
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.pdb
