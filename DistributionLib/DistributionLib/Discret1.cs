@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace DistributionLib
 {
-    public class Discret1
+    public class Discret1   
     {
         static DataTable inDT = new DataTable("In data table");
         /*
@@ -62,7 +62,7 @@ ORDER BY IdEquipment ASC
                 outDT.Columns.Add(Convert.ToString(a + 1), typeof(int));
             }
 
-            //Делаем колличество строк равные колличеству станков
+            //Делаем количество строк равные колличеству станков
             equipments = newEquipmentsDT;
 
             while (equipments.Rows.Count > outDT.Rows.Count)
@@ -79,21 +79,24 @@ ORDER BY IdEquipment ASC
 
             for (int k = 0; k < inDT.Rows.Count; k++)
             {
-                int i = Convert.ToInt32(inDT.Rows[k].ItemArray[3]) - 1; // Номер строки в выходной строке равен id  обурудования полученного
-                //TODO Надо править ибо нет проверки что id оборудования равен строке в выходной таблице с соответствующем оборудованием.
-                //По хорошему надо бежать по строкам выходной таблице и сверять id оборудования там и принимать номер той строки за i
+                int i = Convert.ToInt32(inDT.Rows[k].ItemArray[3]) - 1;
+                // Номер строки в выходной строке равен id  обурудования полученного
+                //TODO Надо править, ибо нет проверки то, что id оборудования равен строке в выходной таблице с соответствующем оборудованием.
+                //По хорошему, надо бежать по строкам выходной таблице и сверять id оборудования, там и принимать номер той строки за i
                 Trace.WriteLine("i: " + i);
 
                 Trace.WriteLine("lastTime = " + lastTime);
 
                 for (int j = lastTime; j < outDT.Columns.Count; j++)
+                    // Цикл для поиска следующего свободного времени у станка
+                    //Начало с последнего времени у партии, конец ограничения по окончания временных промежутков
                 {
                     Trace.WriteLine("\tj: " + j);
 
                     Trace.WriteLine("\t\tПусто ли: " + (outDT.Rows[i].ItemArray[j] == DBNull.Value));
                     if (outDT.Rows[i].ItemArray[j] == DBNull.Value) //Проверка на пустоту
                     {
-                        outDT.Rows[i].SetField(j, inDT.Rows[k].ItemArray[1]);
+                        outDT.Rows[i].SetField(j, inDT.Rows[k].ItemArray[1]);// Вставка номера партии в график оборудования
                         Trace.WriteLine("\t\t\t" + outDT.Rows[i].ItemArray[j]);
                         lastTime = j + 1;
                         Trace.WriteLine("\t\t\tlastTime = " + lastTime);
@@ -101,16 +104,16 @@ ORDER BY IdEquipment ASC
                     }
                 }
                 Trace.WriteLine("Есть ли следующая строка: " + (k + 1 < inDT.Rows.Count));
-                if (k + 1 < inDT.Rows.Count) //Если есть следующая партия
+                if (k + 1 < inDT.Rows.Count) //Если есть следующая строка
                 {
-                    Trace.WriteLine("Та же ли там партия: " + (inDT.Rows[k + 1].ItemArray[1] == inDT.Rows[k].ItemArray[1]));
+                    // Trace.WriteLine("Та же ли там партия: " + (inDT.Rows[k + 1].ItemArray[1] == inDT.Rows[k].ItemArray[1]));
                     if (Convert.ToInt32(inDT.Rows[k + 1].ItemArray[1]) != Convert.ToInt32(inDT.Rows[k].ItemArray[1])) // Если следующая строка НЕ касается той же партии
                         lastTime = 2; // Обнуляем начальное время
                 }
             }
         }
 
-        public static DataTable DurationMainFun(DataTable newEquipmentsDT, DataTable newInDT)
+        public static DataTable MainFun(DataTable newEquipmentsDT, DataTable newInDT)
         {
             inDT = newInDT;
 
