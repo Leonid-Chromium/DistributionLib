@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DistributionLib": {
+      "commandName": "Executable",
+      "executablePath": "D:\\File\\GitHub\\Distribution\\distribution\\distribution\\bin\\Debug\\net5.0-windows\\distribution.exe"
+    }
+  }
+}
