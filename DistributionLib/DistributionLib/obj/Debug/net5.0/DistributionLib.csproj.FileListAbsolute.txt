@@ -12,3 +12,4 @@ D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\
 D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.pdb
 D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\bin\Debug\net5.0\ConvertExpressionLib.dll
 D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\bin\Debug\net5.0\ConvertExpressionLib.pdb
+D:\File\GitHub\DistributionLib\DistributionLib\DistributionLib\obj\Debug\net5.0\DistributionLib.csproj.CopyComplete
