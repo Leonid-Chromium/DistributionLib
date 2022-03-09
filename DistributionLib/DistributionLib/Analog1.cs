@@ -13,6 +13,7 @@ namespace DistributionLib
     public class Analog1
     {
         public DataTable InDT { get; set; }
+        public DataTable OutDT { get; set; } = new DataTable("Output data table");
         public Dictionary<String, int> colDictionary { get; set; }
         public List<string> exceptionList { get; set; } = new List<string>{ };
 
@@ -40,7 +41,10 @@ namespace DistributionLib
                 exceptionList.Add("В списке столбцов нет " + key);
                 return 0;
 			}
-		}
+		
+        
+        
+        }
 
         public DateTime tryConvertToDateTime(string str)
 		{
@@ -66,25 +70,33 @@ namespace DistributionLib
             {
                 Trace.WriteLine("startDT = " + startDT);
                 Trace.WriteLine("endDT = " + endDT);
-                Trace.WriteLine("idEquipment == Convert.ToInt32(InDT.Rows[j].ItemArray[GetCol(\"IdEquipment\")].ToString()) = " + (idEquipment == Convert.ToInt32(InDT.Rows[j].ItemArray[GetCol("IdEquipment")].ToString())));
-                Trace.WriteLine("String.IsNullOrEmpty(InDT.Rows[j].ItemArray[GetCol(\"StartDateTime\")].ToString()) = " + String.IsNullOrEmpty(InDT.Rows[j].ItemArray[GetCol("StartDateTime")].ToString()));
-                Trace.WriteLine("String.IsNullOrEmpty(InDT.Rows[j].ItemArray[GetCol(\"EndDateTime\")].ToString()) = " + String.IsNullOrEmpty(InDT.Rows[j].ItemArray[GetCol("EndDateTime")].ToString()));
-                Trace.WriteLine("Convert.ToDateTime(InDT.Rows[j].ItemArray[GetCol(\"StartDateTime]\")].ToString()) > endDT = " + (Convert.ToDateTime(InDT.Rows[j].ItemArray[GetCol("StartDateTime")].ToString()) > endDT));
-                Trace.WriteLine("Convert.ToDateTime(InDT.Rows[j].ItemArray[GetCol(\"EndDateTime\")].ToString()) < startDT = " + (Convert.ToDateTime(InDT.Rows[j].ItemArray[GetCol("EndDateTime")].ToString()) < startDT));
+                Trace.WriteLine("Оборудование совпадает = " + (idEquipment == Convert.ToInt32(InDT.Rows[j].ItemArray[GetCol("IdEquipment")].ToString())));
+                string oldStartDTStr = InDT.Rows[j].ItemArray[GetCol("StartDateTime")].ToString();
+                Trace.WriteLine("Строка старого времени старта пуста = " + String.IsNullOrEmpty(oldStartDTStr));
+                string oldEndDTStr = InDT.Rows[j].ItemArray[GetCol("EndDateTime")].ToString();
+                Trace.WriteLine("Строка старого времени конца пуста = " + String.IsNullOrEmpty(oldEndDTStr));
+                DateTime oldStartDT = new DateTime();
+                oldStartDT = InDT.Rows[j].ItemArray[GetCol("StartDateTime")].ToString() == "" ? new DateTime() : Convert.ToDateTime(InDT.Rows[j].ItemArray[GetCol("StartDateTime")].ToString());
+                Trace.WriteLine("oldStartDT > endDT = " + (oldStartDT > endDT));
+                DateTime oldEndDT = new DateTime();
+                oldEndDT = InDT.Rows[j].ItemArray[GetCol("EndDateTime")].ToString() == "" ? new DateTime() : Convert.ToDateTime(InDT.Rows[j].ItemArray[GetCol("EndDateTime")].ToString());
+                Trace.WriteLine("oldEndDT < startDT = " + (oldEndDT < startDT));
                 if (
                         idEquipment == Convert.ToInt32(InDT.Rows[j].ItemArray[GetCol("IdEquipment")].ToString())//строка с интересующим нас оборудованием
                         &&
                         (
+                        //ToDO Ошибка здесь
+
                             (
                             //Время в строке не пустое
-                            String.IsNullOrEmpty(InDT.Rows[j].ItemArray[GetCol("StartDateTime")].ToString()) ||
-                            String.IsNullOrEmpty(InDT.Rows[j].ItemArray[GetCol("EndDateTime")].ToString())
+                            String.IsNullOrEmpty(oldStartDTStr) ||
+                            String.IsNullOrEmpty(oldEndDTStr)
                             )
                             &&
                             !(
                                 //Отрицание проверки на свободность
-                                Convert.ToDateTime(InDT.Rows[j].ItemArray[GetCol("StartDateTime")].ToString()) > endDT &&
-                                Convert.ToDateTime(InDT.Rows[j].ItemArray[GetCol("EndDateTime")].ToString()) < startDT
+                                oldStartDT > endDT &&
+                                oldEndDT < startDT
                             )
                         )
                     )
@@ -93,7 +105,7 @@ namespace DistributionLib
                       * и
                       *     Время в строке не пустое
                       *     и
-                      *     отрицание(время пустое)
+                      *     отрицание(время оборудования пустое)
                       */
                 {
                     return false;
@@ -101,67 +113,154 @@ namespace DistributionLib
             }
             return true;
         }
+        
+        bool IsFree2(int idEquipment, DateTime startDT, DateTime endDT)
+		{
+            for (int j = 0; j < InDT.Rows.Count; j++)
+            {
+                //Перечисление переменных
+                //Trace.WriteLine("idEquipment = " + idEquipment);
+                //Trace.WriteLine("startDT = " + startDT);
+                //Trace.WriteLine("endDT = " + endDT);
+
+                //Ищем строки с подходящим оборудованием
+                //Trace.WriteLine("Оборудование совпадает = " + (idEquipment == Convert.ToInt32(OutDT.Rows[j].ItemArray[GetCol("IdEquipment")].ToString())));
+                if (idEquipment == Convert.ToInt32(OutDT.Rows[j].ItemArray[GetCol("IdEquipment")].ToString()))
+                {
+                    //есть ли записи о времение в таблице
+                    string oldStartDTStr = OutDT.Rows[j].ItemArray[GetCol("StartDateTime")].ToString();
+                    string oldEndDTStr = OutDT.Rows[j].ItemArray[GetCol("EndDateTime")].ToString();
+                    //Trace.WriteLine("Строка старого времени старта пуста = " + String.IsNullOrEmpty(oldStartDTStr));
+                    //Trace.WriteLine("Строка старого времени конца пуста = " + String.IsNullOrEmpty(oldEndDTStr));
+                    if (!(String.IsNullOrEmpty(oldStartDTStr) || String.IsNullOrEmpty(oldEndDTStr)))
+					{
+                        //Если пересека пересекаются
+                        DateTime oldStartDT = new DateTime();
+                        DateTime oldEndDT = new DateTime();
+                        oldStartDT = (oldStartDTStr == "") ? new DateTime() : Convert.ToDateTime(oldStartDTStr);
+                        oldEndDT = (oldEndDTStr == "") ? new DateTime() : Convert.ToDateTime(oldEndDTStr);
+                        //Trace.WriteLine("oldStartDT > endDT = " + (oldStartDT > endDT));
+                        //Trace.WriteLine("oldEndDT < startDT = " + (oldEndDT < startDT));
+                        //Нужна проверка на исключение минимальной даты
+                        if (oldStartDT > endDT && oldEndDT < startDT)
+                            return false;
+                    }
+                }
+            }
+            return true;
+        }
 
         public DataTable MainFun(Dictionary<string, decimal> variableDictionary, int trevelTime, DateTime maxDateTime, out string exStr)
         {
-            Trace.WriteLine("Запустились");
-            DataTable OutDT = new DataTable("Output data table");
+            ////Trace.WriteLine("Запустились");
+            
             exStr = String.Empty;
 
-            try
-            {
-                //Создание выходной таблицы
-                OutDT = InDT;
+			try
+			{
+				//Создание выходной таблицы
+				OutDT = InDT;
 
                 DateTime lastDT = new DateTime();
+
+                for (int i = 0; i < OutDT.Rows.Count; i++)
+				{
+                    //Заменяем все формулы расчёта времени операции на их значения
+                    int plastCount = Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("LastCount")]);
+                    if (!variableDictionary.ContainsKey("plast"))
+                    {
+                        variableDictionary.Add("plast", Convert.ToDecimal(plastCount));
+                    }
+                    else
+                    {
+                        variableDictionary["plast"] = Convert.ToDecimal(plastCount);
+                    }
+                    OutDT.Rows[i].SetField(GetCol("TimeFormula"), Second.MainFun(OutDT.Rows[i].ItemArray[GetCol("TimeFormula")].ToString(), variableDictionary).ToString());
+                }
 
                 Trace.WriteLine("Начинаем цикл");
                 for (int i = 0; i < OutDT.Rows.Count; i++)
                 {
-                    int plastCount = Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("LastCount")]);
-                    variableDictionary.Add("plast", Convert.ToDecimal(plastCount));
-                    Trace.WriteLine("ААААААА сука");
-                    //Заменяем все формулы расчёта времени операции на их значения
-                    OutDT.Rows[i].SetField(GetCol("TimeFormula"), Second.MainFun(OutDT.Rows[i].ItemArray[GetCol("TimeFormula")].ToString(), variableDictionary).ToString());
-                    //TODO fgxngfhkjnbzvd
-                    Trace.WriteLine("fgdfhjkfjthtewghjmfytdjhghjgyujhgdxctkmnxdfgdrhftyjrgbbhk,lhbfbh = " + i );
+                    //Для последующего удобства выведем в переменную с 
+                    int idBatch = Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("IdBatch")]);
 
-                    //если это первая строка или строка для новой партии нужно обнулить счётчик до последнего времени.
-                    //если его нет то до первого времени.
-                    //Если и его нет то в идеале спросить у пользователя когда будет начинаться партия, но нам для начала пойдёт и настоящие время
-                    if (i == 0 || (i == 0 ? (OutDT.Rows[i].ItemArray[GetCol("IdBatch")] == OutDT.Rows[i-1].ItemArray[GetCol("IdBatch")]) : true))
+                    /*
+					//если это первая строка или строка для новой партии нужно обнулить счётчик до последнего времени.
+					//если его нет то до первого времени.
+					//Если и его нет то в идеале спросить у пользователя когда будет начинаться партия, но нам для начала пойдёт и настоящие время
+					if (i == 0 || (i == 0 ? (OutDT.Rows[i].ItemArray[GetCol("IdBatch")] == OutDT.Rows[i - 1].ItemArray[GetCol("IdBatch")]) : true))
 					{
-                        if(!String.IsNullOrEmpty(OutDT.Rows[i].ItemArray[GetCol("EndDateTime")].ToString()))
+						if (!String.IsNullOrEmpty(OutDT.Rows[i].ItemArray[GetCol("EndDateTime")].ToString()))
 						{
+							lastDT = Convert.ToDateTime(OutDT.Rows[i].ItemArray[GetCol("EndDateTime")].ToString());
+						}
+						else if (!String.IsNullOrEmpty(OutDT.Rows[i].ItemArray[GetCol("StartDateTime")].ToString()))
+						{
+							lastDT = Convert.ToDateTime(OutDT.Rows[i].ItemArray[GetCol("StartDateTime")].ToString());
+						}
+						else
+						{
+							lastDT = DateTime.Now;
+						}
+					}
+                    */
+
+                    /*
+                     * Здесь делаем каскад if-ов управляющих lastDT
+                     * если предыдущая строка той же партии - ничего не делаем с lastDT
+                     * если строка из новой партии
+                     *      пытаемся взять endDT
+                     *      если endDT пустая - пытаемся взять из statDT
+                     *      если и там пусто пишем сообщение в список ошибок и берём нынешнее время
+                     */
+
+                    //TODO Нужно переделать.
+                    //Я тут взял ранее использованное решение и попытался его оживить
+
+                    if(i > 0)
+					{
+                        if(idBatch == Convert.ToInt32(OutDT.Rows[i - 1].ItemArray[GetCol("IdBatch")]))
+						{
+
+						}
+					}
+                    else if (i == 0 || (i == 0 ? (OutDT.Rows[i].ItemArray[GetCol("IdBatch")] == OutDT.Rows[i - 1].ItemArray[GetCol("IdBatch")]) : true))
+                    {
+                        if (!String.IsNullOrEmpty(OutDT.Rows[i].ItemArray[GetCol("EndDateTime")].ToString()))
+                        {
                             lastDT = Convert.ToDateTime(OutDT.Rows[i].ItemArray[GetCol("EndDateTime")].ToString());
                         }
                         else if (!String.IsNullOrEmpty(OutDT.Rows[i].ItemArray[GetCol("StartDateTime")].ToString()))
-						{
+                        {
                             lastDT = Convert.ToDateTime(OutDT.Rows[i].ItemArray[GetCol("StartDateTime")].ToString());
                         }
                         else
-						{
+                        {
                             lastDT = DateTime.Now;
-						}
-					}
+                        }
+                    }
+                    
 
-                    //Для последующего удобства выведем в переменную с 
-                    int idBatch = Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("IdBatch")]);
-                    bool a = i + 1 < OutDT.Rows.Count;
-                    bool b = idBatch == Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("IdBatch") + 1]);
+                    //Цикл на одну партию
+                    //TODO нужно поменять.
+                    //Возможно Нужно пролверять не со следующей партией. а с предыйдущей
 
-                    Trace.WriteLine("fdgzxhj" + i);
-
+                    Trace.WriteLine("--------------------------------------------------------------------------------------");
+                    Trace.WriteLine("Строка " + i + " партии " + idBatch);
+                    Trace.WriteLine("--------------------------------------------------------------------------------------");
+                    Trace.WriteLine("I = " + i);
                     DateTime startDT = lastDT.AddMinutes(trevelTime);
                     DateTime endDT = startDT.AddMinutes(Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("TimeFormula")]));
 
+                    //Проверяет свободен ли станок всё время. Выход из цикла происходит внутри цикла.
                     while (startDT <= maxDateTime)
                     {
-                        if (IsFree(Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("IdEquipment")]), startDT, endDT))
+                        if (IsFree2(Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("IdEquipment")]), startDT, endDT))
                         {
                             OutDT.Rows[i].SetField(GetCol("StartDateTime"), startDT);
                             OutDT.Rows[i].SetField(GetCol("EndDateTime"), endDT);
                             lastDT = endDT;
+                            break;
                         }
                         else
                         {
@@ -170,45 +269,17 @@ namespace DistributionLib
                             lastDT = endDT;
                         }
                     }
-                    i++;
-
-                    //               //Что это за цикл
-                    //               while (i + 1 < OutDT.Rows.Count /*&& Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("IdBatch") + 1])*/)
-                    //{
-                    //                   Trace.WriteLine("fdgzxhj" + i);
-
-                    //                   DateTime startDT = lastDT.AddMinutes(trevelTime);
-                    //                   DateTime endDT = startDT.AddMinutes(Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("TimeFormula")]));
-
-                    //                   while(startDT <= maxDateTime)
-                    //	{
-                    //                       if (IsFree(Convert.ToInt32(OutDT.Rows[i].ItemArray[GetCol("IdEquipment")]), startDT, endDT))
-                    //		{
-                    //                           OutDT.Rows[i].SetField(GetCol("StartDateTime"), startDT);
-                    //                           OutDT.Rows[i].SetField(GetCol("EndDateTime"), endDT);
-                    //                           lastDT = endDT;
-                    //                       }
-                    //                       else
-                    //		{
-                    //                           startDT = startDT.AddMinutes(1);
-                    //                           endDT = endDT.AddMinutes(1);
-                    //                           lastDT = endDT;
-                    //		}
-                    //	}
-                    //                   i++;
-                    //}
-
                 }
 
 				return OutDT;
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex.Message);
-                exStr = ex.Message;
-            }
-            return OutDT;
-        }
+			}
+			catch (Exception ex)
+			{
+				Trace.WriteLine(ex.Message);
+				exStr = ex.Message;
+			}
+			return OutDT;
+		}
 
         public DataTable MainFun(DataTable newInDT, Dictionary<string, decimal> variableDictionary, Dictionary<string, int> newColDictionary, int trevelTime, DateTime maxDateTime, out string exStr)
         {
